@@ -1,5 +1,5 @@
-
 import mysql.connector
+from datetime import datetime
 try:
         mydb = mysql.connector.connect(host = 'localhost',user = 'root' ,password = '',database = 'ksebdb')
 except mysql.connector.Error as e:
@@ -11,7 +11,7 @@ while True:
              2. search consumer
              3. delete  consumer
              4. update the consumer
-             5. view all consmer
+             5. view all consumer
              6. generate bill
              7. view bill
              8. Exit """)
@@ -63,7 +63,33 @@ while True:
             print(i)
     elif(choice == 6):
         print("Generate Bill selected")
+        customer_id = input('Enter the customer code : ')
+        sql = "SELECT `id` FROM `consumer` WHERE `consumer_code`='"+customer_id+"'"
+        mycursor.execute(sql)
+        result = mycursor.fetchall()
+        for i in result:
+            a = i[0]
+        print(a)
+        mon = 11
+        sql = "SELECT SUM(`unit`) FROM `usages` WHERE `consumer_code`= '"+str(a)+"' AND MONTH(`datetime`)="+str(mon)
+        mycursor.execute(sql)
+        result = mycursor.fetchall()
+        for  i in result:
+             sumOfUnit = str(i[0])
+        totalAmount = int(sumOfUnit)*5   
+        print("Total Unit used : ",sumOfUnit)
+        print("Total amount: ",totalAmount)
+        currentMonth = datetime.now().month
+        currentYear = datetime.now().year
+        sql = "INSERT INTO `bill`(`consumer_code`, `month`, `year`, `bill`, `paid_status`, `bill_date`, `total_units`) VALUES  (%s,%s,%s,%s,%s,now(),%s)"
+        data = (customer_id,currentMonth,currentYear,totalAmount,'0',sumOfUnit)
+        mycursor.execute(sql,data)
+        mydb.commit()
+        print("Bill inserted successfully.")
+    
     elif(choice == 7):
         print("View Bill selected")
     elif choice==8:
         break
+
+
