@@ -48,8 +48,8 @@ while True:
         consumer_name = input("Enter the consumer name to update: ")
         consumer_phone = input("Enter the consumer phone to update: ")
         consumer_email = input("Enter the consumer email id to update: ")
-        consumer_eddress = input("Enter the consumer address to update: ")
-        sql = "UPDATE `consumer` SET `consumer_name`='"+consumename+"',`consumer_phone`='"+consumerphone+"',`consumer_email`='"+consumeremail+"',`consumer_address`='"+consumeraddress+"' WHERE `consumerCode` = "+consumercode
+        consumer_address = input("Enter the consumer address to update: ")
+        sql = "UPDATE `consumer` SET `consumer_name`='"+consumer_name+"',`consumer_phone`='"+consumer_phone+"',`consumer_email`='"+consumer_email+"',`consumer_address`='"+consumer_address+"' WHERE `consumerCode` = "+consumer_code
         mycursor.execute(sql)
         mydb.commit()
         print("Data updated successfully")
