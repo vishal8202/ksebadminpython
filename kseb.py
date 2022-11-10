@@ -35,6 +35,13 @@ while True:
         result = mycursor.fetchall()
         for i in result:
             print(i) 
+    elif(choice == 3):
+        print("Delete Consumer Selected")
+        consumer_code = input("Enter the consumer code to delete: ")
+        sql = "DELETE FROM `consumer` WHERE `consumer_code`="+consumer_code
+        mycursor.execute(sql)
+        mydb.commit()
+        print("Data deleted successfully.")
     
     elif choice==8:
         break
