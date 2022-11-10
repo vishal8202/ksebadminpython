@@ -1,4 +1,3 @@
-from tabulate import tabulate
 
 import mysql.connector
 try:
@@ -24,11 +23,18 @@ while True:
         phone = input("Enter the phone number : ")
         place = input("Enter the address : ")
         email = input("Enter the email id : ")
-        sql = "INSERT INTO `consumer`(`consumer_code`, `consumer_name`, `consumer_phone`, `consumer_email`, `consumer_adress`) VALUES (%s,%s,%s,%s,%s)"
+        sql = "INSERT INTO `consumer`(`id`, `consumer_code`, `consumer_name`, `consumer_phone`, `consumer_email`, `consumer_adress`) VALUES (%s,%s,%s,%s,%s)"
         data =(consumer_id,name,phone,place,email)
         mycursor.execute(sql,data)
         mydb.commit()
     elif(choice==2):
-        print()
+        print("search consumer selected")
+        search = input("enter the consumer code, consumer name ,phone number : ")
+        sql = "SELECT `id`, `consumer_code`, `consumer_name`, `consumer_phone`, `consumer_email`, `consumer_adress` FROM `consumer` WHERE `consumer_code`= '"+search+"' OR `consumer_name`='"+search+"' OR `consumer_phone`= '"+search+"'"
+        mycursor.execute(sql)
+        result = mycursor.fetchall()
+        for i in result:
+            print(i) 
+    
     elif choice==8:
         break
