@@ -1,5 +1,7 @@
 import mysql.connector
 from datetime import date
+from tabulate import tabulate
+import random
 try:
         mydb = mysql.connector.connect(host = 'localhost',user = 'root' ,password = '',database = 'ksebdb')
 except mysql.connector.Error as e:
@@ -17,7 +19,7 @@ while True:
              8. view top 2 bill 
              9.Exit """)
     choice =int(input("Enter your option : "))
-    if choice==1:
+    if (choice==1):
         print("add consumer selected")
         consumer_id = int(input("Enter the consumer id: "))
         name = input("enter the name :")
@@ -49,8 +51,8 @@ while True:
         consumer_name = input("Enter the consumer name to update: ")
         consumer_phone = input("Enter the consumer phone to update: ")
         consumer_email = input("Enter the consumer email id to update: ")
-        consumer_eddress = input("Enter the consumer address to update: ")
-        sql = "UPDATE `consumer` SET `consumer_name`='"+consumename+"',`consumer_phone`='"+consumerphone+"',`consumer_email`='"+consumeremail+"',`consumer_address`='"+consumeraddress+"' WHERE `consumerCode` = "+consumercode
+        consumer_address = input("Enter the consumer address to update: ")
+        sql = "UPDATE `consumer` SET `consumer_name`='"+consumer_name+"',`consumer_phone`='"+consumer_phone+"',`consumer_email`='"+consumer_email+"',`consumer_address`='"+consumer_address+"' WHERE `consumerCode` = "+consumer_code
         mycursor.execute(sql)
         mydb.commit()
         print("Data updated successfully")
@@ -62,31 +64,49 @@ while True:
         result = mycursor.fetchall()
         for i in result:
             print(i)
-    elif(choice == 6):
-
-        print("Generate Bill selected")
-        customer_id = input('Enter the customer id : ')
-        sql = "SELECT `id` FROM `consumer` WHERE `consumer_code`='"+customer_id+"'"
-        mycursor.execute(sql)
-        result = mycursor.fetchone()
+    elif(choice==6):
+        print("You had entered into generate bill section ")
         dates = date.today()
         year = dates.year
         month = dates.month
-        sql = "SELECT SUM(`unit`) FROM `usages` WHERE `consumer_code`= '"+str(result[0])+"' AND MONTH(`datetime`)='"+str(month)+"' AND YEAR(`datetime`)= '"+str(year)+"'"
+        sql = "DELETE FROM `bill` WHERE `month`='"+str(month)+"' AND `year`='"+str(year)+"'"
+        print(sql)
         mycursor.execute(sql)
-        result = mycursor.fetchone()
-        print("Total Unit used : ",result[0])
-        totalAmount = int(result[0])*5
-        print("Total amount: ",totalAmount)
-        sql = "INSERT INTO `bill`(`consumer_code`, `month`, `year`, `bill`, `paid_status`, `bill_date`, `total_units`) VALUES (%s,%s,%s,%s,%s,now(),%s)"
-        data = (str(customer_id),str(month),str(year),totalAmount,'0',str(result[0]))
-        mycursor.execute(sql,data)
         mydb.commit()
-        print("Bill inserted successfully.")
-
+        sql = "SELECT `id` FROM `consumer` "
+        mycursor.execute(sql)
+        result = mycursor.fetchall()
+        for i in result:
+            print(i[0])
+            id = i[0]
+            sql = "SELECT SUM(`unit`) FROM `usages` WHERE `consumer_code`='"+str(i[0])+"'  AND MONTH(`datetime`)='"+str(month)+"' AND YEAR(`datetime`)='"+str(year)+"'"
+            mycursor.execute(sql)
+            result = mycursor.fetchone()
+            unit = result[0]
+            print(unit)
+            total_bill = int(str(result[0])) * 5
+            print(total_bill)
+            status = 0
+            invoice = random.randint(10000,100000)
+            sql = "INSERT INTO `bill`(`consumer_code`, `month`, `year`, `bill`, `paid_status`, `bill_date`,`total_units`,`duedate`, `invoice`) VALUES (%s,%s,%s,%s,%s,now(),%s,now()+interval 14 day,%s)"
+            data = (str(id),str(month),str(year),total_bill,status,str(unit),str(invoice))
+            mycursor.execute(sql , data)
+            mydb.commit()
+       
     elif(choice == 7):
-        print("View Bill selected")
-    elif choice==8:
-        break
+        print("view the bill which had generated ")
+        sql = "SELECT  c.consumer_name,c.consumer_adress,b.`month`, b.`year`, b.`bill`, b.`paid_status`, b.`bill_date`, b.`total_units`, b.`duedate`, b.`invoice` FROM `bill` b JOIN consumer c ON b.consumer_code=c.id"
+        mycursor.execute(sql)
+        result = mycursor.fetchall()
+        print(tabulate(result,headers=['consumer_name','consumer_adress','month','year','bill','paid_status','bill_date','total_units','duedate','invoice'],tablefmt = "psql"))
+    elif(choice==8):
+        print('Top 2 high bill')
+        sql = "SELECT c.consumer_name,c.consumer_adress,b.`bill`, b.`total_units` FROM `bill` b JOIN consumer c ON b.consumer_code=c.id ORDER BY b.`bill`DESC LIMIT 2"
+        mycursor.execute(sql)
+        result = mycursor.fetchall()
+        print(tabulate(result,headers=['consumer_name','consumer_adress','bill', 'total_units']))
 
+    
+    elif choice==9:
+        break
 
